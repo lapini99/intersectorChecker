@@ -1,6 +1,6 @@
 export const checkIntersections = (divRef, variableText, endRef) => {
-    function isOutBoundaries(tag, end) {
-        const isOutside = end.bottom > tag.bottom;
+    function isOutBoundaries(start, end) {
+        const isOutside = end.bottom > start.bottom;
 
         return isOutside;
     }
@@ -9,17 +9,13 @@ export const checkIntersections = (divRef, variableText, endRef) => {
 
     if (parentElement) {
         let parentHeight = parentElement.clientHeight;
-
         let totalChildrenHeight = 0;
 
-        let children = Array.from(parentElement.children);
+        let dinamycText = parentElement.querySelectorAll('div.myClass');
 
-        children.forEach((child) => {
-            totalChildrenHeight += child.clientHeight;
-
-            let splitText = child.innerText.split('.');
-
-            let splitTimes = splitText.length - 1;
+        for (let i = dinamycText.length - 1; i >= 0; i--) {
+            let child = dinamycText[i];
+            totalChildrenHeight = parentElement.firstChild.clientHeight;
 
             if (
                 totalChildrenHeight >= parentHeight ||
@@ -28,32 +24,25 @@ export const checkIntersections = (divRef, variableText, endRef) => {
                     endRef.current.getBoundingClientRect(),
                 )
             ) {
-                for (let i = 0; i < splitTimes; i++) {
-                    splitText.pop();
-                    child.innerHTML = '<p>' + splitText + '.</p>';
-                    totalChildrenHeight =
-                        totalChildrenHeight - child.clientHeight;
-                    isOutBoundaries(
-                        divRef.current.getBoundingClientRect(),
-                        endRef.current.getBoundingClientRect(),
-                    );
-                }
+                child.remove();
+            }
+        }
 
-                totalChildrenHeight += child.clientHeight;
-
-                if (totalChildrenHeight >= parentHeight) {
-                    parentElement.removeChild(child);
-                }
-
+        if (totalChildrenHeight < parentHeight) {
+            for (let i = 0; i < dinamycText.length - 1; i++) {
+                let child = dinamycText[i];
+                parentElement.firstChild.appendChild(child);
+                totalChildrenHeight = parentElement.firstChild.clientHeight;
                 if (
+                    totalChildrenHeight >= parentHeight ||
                     isOutBoundaries(
                         divRef.current.getBoundingClientRect(),
                         endRef.current.getBoundingClientRect(),
                     )
                 ) {
-                    parentElement.removeChild(parentElement.lastChild);
+                    child.remove();
                 }
             }
-        });
+        }
     }
 };
